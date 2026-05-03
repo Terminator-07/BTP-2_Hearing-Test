@@ -39,8 +39,6 @@ A web-based audiometry tool for comprehensive self-administered hearing tests wh
 - ✅ No installation required - runs in modern web browsers
 - ✅ No data collection - everything runs locally
 - ✅ Mobile and desktop compatible
-- ✅ Bilingual support (English/Hebrew)
-- ✅ Free for personal, educational, and non-commercial use
 
 ## How It Works
 
@@ -123,7 +121,7 @@ hearing-test/
 ### Speech Test Implementation
 
 - Uses Web Speech Synthesis API for word playback
-- 40-word vocabulary per language (English/Hebrew word lists included)
+- 40-word vocabulary 
 - Multiple-choice format with 3 distractors per word
 - 8 volume levels from 100% to 10%
 - Adaptive threshold calculation (50% recognition point)
