@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hearing Test - Free Online Audiometry</title>
+    <meta name="description" content="Free online hearing test - Check your hearing with a self-administered audiometry test">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+    <!-- Language Selector -->
+    <div class="language-selector-container">
+        <select id="language-selector" class="language-selector" onchange="i18n.setLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="he">עברית</option>
+        </select>
+    </div>
+
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="screen active">
+            <h1 data-i18n="app.title">Online Hearing Test</h1>
+            <p class="subtitle" data-i18n="app.subtitle">Free Self-Administered Audiometry</p>
+
+            <div class="info-box warning">
+                <h3 data-i18n="welcome.disclaimer.title">⚠️ Important Disclaimer</h3>
+                <p data-i18n="welcome.disclaimer.text">This is NOT a medical device and should not replace professional audiological evaluation.
+                   This tool is for educational and screening purposes only. Results are not calibrated to
+                   clinical standards. Please consult a licensed audiologist for accurate hearing assessment.</p>
+            </div>
+
+            <div class="info-box">
+                <h3 data-i18n="welcome.before.title">Before You Start</h3>
+                <ul>
+                    <li data-i18n="welcome.before.item1">Use quality headphones or earbuds (not speakers)</li>
+                    <li data-i18n="welcome.before.item2">Find a quiet environment</li>
+                    <li data-i18n="welcome.before.item3">Set your system volume to about 50%</li>
+                    <li data-i18n="welcome.before.item4">Test takes approximately 10-15 minutes</li>
+                    <li data-i18n="welcome.before.item5">You'll hear tones at different frequencies and volumes</li>
+                    <li data-i18n="welcome.before.item6">Press the button or spacebar when you hear a sound</li>
+                </ul>
+            </div>
+
+            <button class="btn-primary" onclick="app.startCalibration()" data-i18n="welcome.btn.start">Start Test</button>
+        </div>
+
+        <!-- Calibration Screen -->
+        <div id="calibration-screen" class="screen">
+            <h2 data-i18n="calibration.title">Setup & Calibration</h2>
+
+            <div class="calibration-step" id="calibration-volume">
+                <h3 data-i18n="calibration.volume.title">Step 1: Volume Check</h3>
+                <p data-i18n="calibration.volume.text">We'll play a reference tone. Adjust your system volume to a comfortable level -
+                   loud enough to hear clearly but not uncomfortably loud.</p>
+                <button class="btn-secondary" onclick="app.playCalibrationTone()" data-i18n="calibration.volume.btn">Play Reference Tone (1000 Hz)</button>
+                <button class="btn-primary" onclick="app.nextCalibrationStep()" data-i18n="calibration.volume.continue">Volume is Good - Continue</button>
+            </div>
+
+            <div class="calibration-step hidden" id="calibration-headphones">
+                <h3 data-i18n="calibration.headphones.title">Step 2: Headphone Check</h3>
+                <p data-i18n="calibration.headphones.text">Make sure your headphones are on correctly. We'll play sounds in each ear.</p>
+                <div class="headphone-test">
+                    <button class="btn-secondary" onclick="app.playTestTone('left')" data-i18n="calibration.headphones.left">Test Left Ear</button>
+                    <button class="btn-secondary" onclick="app.playTestTone('right')" data-i18n="calibration.headphones.right">Test Right Ear</button>
+                </div>
+                <p class="hint" data-i18n="calibration.headphones.hint">You should hear the tone only in the specified ear.</p>
+                <button class="btn-primary" onclick="app.proceedAfterCalibration()" data-i18n="calibration.headphones.continue">Headphones Correct - Continue</button>
+            </div>
+        </div>
+
+        <!-- Tutorial Screen -->
+        <div id="tutorial-screen" class="screen">
+            <div class="tutorial-header">
+                <h2 data-i18n="tutorial.title">Practice Tutorial</h2>
+                <div class="tutorial-badge" data-i18n="tutorial.badge">This is NOT the real test - just practice!</div>
+            </div>
+
+            <div class="tutorial-content">
+                <div class="info-box">
+                    <h3 data-i18n="tutorial.how.title">How It Works:</h3>
+                    <ul>
+                        <li data-i18n="tutorial.how.item1">You will hear tones at different volumes and frequencies</li>
+                        <li data-i18n="tutorial.how.item2">Press the button below (or SPACEBAR) immediately when you hear a sound</li>
+                        <li data-i18n="tutorial.how.item3">Even very faint sounds - if you hear it, press the button</li>
+                        <li data-i18n="tutorial.how.item4">If you don't hear anything, just wait - a new tone will play automatically</li>
+                    </ul>
+                </div>
+
+                <div class="tutorial-practice">
+                    <h3 data-i18n="tutorial.practice.title">Let's Practice:</h3>
+                    <p data-i18n="tutorial.practice.text">We'll play a few practice tones. Press the button when you hear them.</p>
+
+                    <button class="btn-primary" id="start-tutorial-btn" onclick="app.startTutorial()" data-i18n="tutorial.btn.start">
+                        Start Practice
+                    </button>
+
+                    <button class="btn-hear-it" id="tutorial-button">
+                        <span class="button-text" data-i18n="tutorial.btn.hear">I Hear It</span>
+                        <span class="button-hint" data-i18n="tutorial.btn.hear.hint">or press SPACEBAR</span>
+                    </button>
+
+                    <div class="tutorial-status" id="tutorial-status">
+                        <span data-i18n="tutorial.status.ready">Ready to start practice</span>
+                    </div>
+
+                    <div class="tutorial-progress">
+                        <span id="tutorial-progress-text">Practice tones: <strong id="tutorial-counter">0 / 4</strong></span>
+                    </div>
+                </div>
+
+                <button class="btn-primary hidden" id="finish-tutorial-btn" onclick="app.finishTutorial()" data-i18n="tutorial.btn.finish">
+                    I'm Ready - Begin Real Test
+                </button>
+
+                <div class="hint">
+                    <p data-i18n="tutorial.hint">Don't worry - you can skip this tutorial if you've done it before</p>
+                    <button class="btn-skip" onclick="app.skipTutorial()" data-i18n="tutorial.btn.skip">Skip Tutorial</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Selection Screen -->
+        <div id="test-selection-screen" class="screen">
+            <h2 data-i18n="testselection.title">Choose Your Test Type</h2>
+            <p class="subtitle" data-i18n="testselection.subtitle">Select which type of hearing assessment you'd like to complete</p>
+
+            <div class="test-type-cards">
+                <div class="test-card">
+                    <div class="test-card-icon">🎵</div>
+                    <h3 data-i18n="testselection.puretone.title">Pure Tone Test</h3>
+                    <p data-i18n="testselection.puretone.desc">Tests your ability to hear different frequencies and volumes. Creates an audiogram chart.</p>
+                    <ul class="test-card-features">
+                        <li data-i18n="testselection.puretone.feature1">10-15 minutes</li>
+                        <li data-i18n="testselection.puretone.feature2">Standard audiometry</li>
+                        <li data-i18n="testselection.puretone.feature3">8 frequencies tested</li>
+                    </ul>
+                    <button class="btn-primary" onclick="app.selectTestType('puretone')" data-i18n="testselection.puretone.btn">Start Pure Tone Test</button>
+                </div>
+
+                <div class="test-card">
+                    <div class="test-card-icon">💬</div>
+                    <h3 data-i18n="testselection.speech.title">Speech Recognition Test</h3>
+                    <p data-i18n="testselection.speech.desc">Tests your ability to understand spoken words at different volumes. More practical for everyday hearing.</p>
+                    <ul class="test-card-features">
+                        <li data-i18n="testselection.speech.feature1">5-8 minutes</li>
+                        <li data-i18n="testselection.speech.feature2">Real-world relevance</li>
+                        <li data-i18n="testselection.speech.feature3">Word recognition</li>
+                    </ul>
+                    <button class="btn-primary" onclick="app.selectTestType('speech')" data-i18n="testselection.speech.btn">Start Speech Test</button>
+                </div>
+
+                <div class="test-card test-card-recommended">
+                    <div class="test-card-badge" data-i18n="testselection.both.badge">Recommended</div>
+                    <div class="test-card-icon">🎵💬</div>
+                    <h3 data-i18n="testselection.both.title">Complete Assessment</h3>
+                    <p data-i18n="testselection.both.desc">Both pure tone and speech tests for comprehensive hearing evaluation.</p>
+                    <ul class="test-card-features">
+                        <li data-i18n="testselection.both.feature1">15-20 minutes</li>
+                        <li data-i18n="testselection.both.feature2">Most comprehensive</li>
+                        <li data-i18n="testselection.both.feature3">Clinical standard</li>
+                    </ul>
+                    <button class="btn-primary" onclick="app.selectTestType('both')" data-i18n="testselection.both.btn">Start Complete Test</button>
+                </div>
+
+                <div class="test-card">
+                    <div class="test-card-icon">🎮</div>
+                    <h3 data-i18n="testselection.game.title">Game Mode Test</h3>
+                    <p data-i18n="testselection.game.desc">Fun, interactive hearing test with game scenarios. Same accuracy as pure tone test but more engaging - perfect for kids!</p>
+                    <ul class="test-card-features">
+                        <li data-i18n="testselection.game.feature1">12-18 minutes</li>
+                        <li data-i18n="testselection.game.feature2">6 game scenarios</li>
+                        <li data-i18n="testselection.game.feature3">Multiple validations</li>
+                    </ul>
+                    <button class="btn-primary" onclick="app.selectTestType('gamemode')" data-i18n="testselection.game.btn">Start Game Mode</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Speech Test Screen -->
+        <div id="speech-test-screen" class="screen">
+            <div class="test-header">
+                <h2 data-i18n="speech.title">Speech Recognition Test</h2>
+                <div class="progress-info">
+                    <div class="current-info">
+                        <span class="volume-indicator"><span data-i18n="speech.volume">Volume</span>: <strong id="speech-volume-indicator">100%</strong></span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="speech-progress-fill"></div>
+                    </div>
+                    <div class="progress-text" id="speech-progress-text">0% Complete</div>
+                </div>
+            </div>
+
+            <div class="speech-test-content">
+                <div class="instruction" id="speech-instruction">
+                    <p data-i18n="speech.instruction">Listen to the spoken word, then select which word you heard from the options below.</p>
+                </div>
+
+                <div class="speech-word-display" id="speech-word-display">
+                    <div class="listening-indicator">
+                        <span data-i18n="speech.listening">🔊 Listening...</span>
+                    </div>
+                </div>
+
+                <div class="speech-options">
+                    <button class="btn-speech-option" id="speech-option-1">Word 1</button>
+                    <button class="btn-speech-option" id="speech-option-2">Word 2</button>
+                    <button class="btn-speech-option" id="speech-option-3">Word 3</button>
+                    <button class="btn-speech-option" id="speech-option-4">Word 4</button>
+                </div>
+
+                <div class="speech-replay">
+                    <button class="btn-secondary" onclick="speechTest.replayWord()" data-i18n="speech.btn.replay">
+                        🔁 Replay Word
+                    </button>
+                    <p class="hint" data-i18n="speech.replay.hint">Click to hear the word again</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Test Screen -->
+        <div id="game-test-screen" class="screen">
+            <div class="game-header">
+                <h2 data-i18n="game.title">Hearing Adventure Game</h2>
+                <div class="game-progress">
+                    <span><span data-i18n="test.testing">Testing</span>: <strong id="game-ear">Right Ear</strong></span>
+                    <span><span data-i18n="test.frequency">Frequency</span>: <strong id="game-frequency">1000 Hz</strong></span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="game-progress-fill"></div>
+                    </div>
+                    <button class="btn-expand-matrix" id="game-expand-matrix-btn" data-i18n="game.matrix.show">
+                        ▶ Show Test Matrix
+                    </button>
+                </div>
+            </div>
+
+            <!-- Test Matrix Container -->
+            <div class="game-matrix-container" id="game-matrix-container">
+                <div id="game-matrix-table"></div>
+            </div>
+
+            <div class="game-instruction" id="game-instruction">
+                <p data-i18n="game.instruction">Listen carefully and click on the object making sound!</p>
+            </div>
+
+            <div class="game-scene" id="game-scene">
+                <!-- SVG background rendered here -->
+            </div>
+
+            <div class="game-options">
+                <div class="game-option-container">
+                    <button class="game-option-btn" id="game-option-0"></button>
+                    <button class="game-confirm-btn" id="game-confirm-0" data-i18n="game.confirm">This!</button>
+                </div>
+                <div class="game-option-container">
+                    <button class="game-option-btn" id="game-option-1"></button>
+                    <button class="game-confirm-btn" id="game-confirm-1" data-i18n="game.confirm">This!</button>
+                </div>
+                <div class="game-option-container">
+                    <button class="game-option-btn" id="game-option-2"></button>
+                    <button class="game-confirm-btn" id="game-confirm-2" data-i18n="game.confirm">This!</button>
+                </div>
+            </div>
+
+            <div class="game-controls">
+                <button class="btn-secondary" id="game-help-btn" data-i18n="game.idontknow">
+                    I Don't Know / Skip
+                </button>
+            </div>
+
+            <div class="game-feedback" id="game-feedback"></div>
+        </div>
+
+        <!-- Test Screen -->
+        <div id="test-screen" class="screen">
+            <div class="test-header">
+                <h2 data-i18n="test.title">Hearing Test in Progress</h2>
+                <div class="progress-info">
+                    <div class="current-info">
+                        <span class="ear-indicator"><span data-i18n="test.testing">Testing</span>: <strong id="current-ear">Right Ear</strong></span>
+                        <span class="freq-indicator"><span data-i18n="test.frequency">Frequency</span>: <strong id="current-frequency">1000</strong> Hz</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="progress-text" id="progress-text">0% Complete</div>
+                </div>
+            </div>
+
+            <div class="test-content">
+                <div class="instruction">
+                    <p data-i18n="test.instruction.main">Listen carefully. Press the button below (or press SPACEBAR) whenever you hear a tone.</p>
+                    <p class="hint" data-i18n="test.instruction.hint">Even if the sound is very faint, press the button.</p>
+                </div>
+
+                <button class="btn-hear-it" id="hear-button">
+                    <span class="button-text" data-i18n="test.btn.hear">I Hear It</span>
+                    <span class="button-hint" data-i18n="test.btn.hear.hint">or press SPACEBAR</span>
+                </button>
+
+                <div class="test-status" id="test-status">
+                    Waiting for tone...
+                </div>
+
+                <div class="skip-container">
+                    <button class="btn-skip" onclick="app.skipCurrentFrequency()" data-i18n="test.btn.skip">
+                        Skip This Frequency
+                    </button>
+                    <p class="hint" data-i18n="test.skip.hint">Use if you cannot hear the tone at all or want to skip this test</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="screen">
+            <h2 data-i18n="results.title">Your Test Results</h2>
+
+            <!-- Pure Tone Results -->
+            <div id="puretone-results" class="results-section">
+                <h3 data-i18n="results.puretone.title">Pure Tone Audiogram</h3>
+                <div class="audiogram-container">
+                    <canvas id="audiogram-chart" width="800" height="500"></canvas>
+                </div>
+            </div>
+
+            <!-- Speech Test Results -->
+            <div id="speech-results" class="results-section hidden">
+                <h3 data-i18n="results.speech.title">Speech Recognition Results</h3>
+                <div class="speech-results-container">
+                    <div class="speech-threshold-card">
+                        <div class="speech-threshold-label" data-i18n="results.speech.threshold">Speech Recognition Threshold:</div>
+                        <div class="speech-threshold-value" id="speech-threshold-value">80%</div>
+                        <p class="speech-threshold-desc" data-i18n="results.speech.threshold.desc">Volume level at which you correctly identified 50% of words</p>
+                    </div>
+                    <div class="speech-performance-chart" id="speech-performance-chart">
+                        <!-- Chart will be drawn here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-info">
+                <h3 data-i18n="results.understanding">Understanding Your Results</h3>
+                <div class="legend">
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #e74c3c"></span>
+                        <span data-i18n="results.legend.right">Right Ear</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #3498db"></span>
+                        <span data-i18n="results.legend.left">Left Ear</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #95a5a6"></span>
+                        <span data-i18n="results.legend.skipped">Skipped Test</span>
+                    </div>
+                </div>
+                <div class="interpretation">
+                    <h4 data-i18n="results.classification.title">Hearing Level Classification:</h4>
+                    <ul>
+                        <li><strong>-10 to 25 dB:</strong> <span data-i18n="results.classification.normal">Normal hearing</span></li>
+                        <li><strong>26 to 40 dB:</strong> <span data-i18n="results.classification.mild">Mild hearing loss</span></li>
+                        <li><strong>41 to 55 dB:</strong> <span data-i18n="results.classification.moderate">Moderate hearing loss</span></li>
+                        <li><strong>56 to 70 dB:</strong> <span data-i18n="results.classification.modsevere">Moderately severe hearing loss</span></li>
+                        <li><strong>71 to 90 dB:</strong> <span data-i18n="results.classification.severe">Severe hearing loss</span></li>
+                        <li><strong>91+ dB:</strong> <span data-i18n="results.classification.profound">Profound hearing loss</span></li>
+                    </ul>
+                </div>
+                <div class="info-box warning">
+                    <p><strong data-i18n="results.reminder.title">Remember:</strong> <span data-i18n="results.reminder.text">This test is not calibrated to medical standards.
+                    If you have concerns about your hearing, please consult a licensed audiologist.</span></p>
+                </div>
+            </div>
+
+            <div class="results-actions">
+                <button class="btn-secondary" onclick="app.saveResults()" data-i18n="results.btn.save">Save Results (PNG)</button>
+                <button class="btn-secondary" onclick="app.saveResultsCSV()" data-i18n="results.btn.savecsv">Download CSV</button>
+                <button class="btn-secondary" onclick="app.printResults()" data-i18n="results.btn.print">Print</button>
+                <button class="btn-primary" onclick="app.restartTest()" data-i18n="results.btn.restart">Take Test Again</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load JavaScript -->
+    <script src="js/i18n.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/speech.js"></script>
+    <script src="js/game-scenarios.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/test.js"></script>
+    <script src="js/audiogram.js"></script>
+</body>
+</html>
